@@ -17,7 +17,9 @@ from pandas import DataFrame
 class VolatilityBreakout(IStrategy):
     INTERFACE_VERSION = 3
     timeframe = "15m"
-    can_short = True
+    # Spot market: no shorting. Set True + trading_mode "futures" in config
+    # if you want to trade both directions with leverage.
+    can_short = False
 
     lookback = 20
     atr_period = 14
