@@ -1,0 +1,84 @@
+{
+  "_comment": "Template config Freqtrade untuk Sentinel. JANGAN isi secret asli di sini - bootstrap.sh menimpa field sensitif dari env.",
+  "api_server": {
+    "enabled": true,
+    "jwt_secret_key": "CHANGEME_TOO",
+    "listen_ip_address": "127.0.0.1",
+    "listen_port": 8080,
+    "password": "CHANGEME",
+    "username": "sentinel"
+  },
+  "bot_name": "sentinel",
+  "cancel_open_orders_on_exit": true,
+  "db_url": "sqlite:////freqtrade/user_data/tradesv3.sqlite",
+  "dry_run": true,
+  "dry_run_wallet": 1000,
+  "entry_pricing": {
+    "check_depth_of_market": {
+      "bids_to_ask_delta": 1,
+      "enabled": false
+    },
+    "order_book_top": 1,
+    "price_last_balance": 0.0,
+    "price_side": "same",
+    "use_order_book": false
+  },
+  "exchange": {
+    "enabled": true,
+    "key": "",
+    "name": "binance",
+    "pair_blacklist": [],
+    "pair_whitelist": [
+      "BTC/USDT",
+      "ETH/USDT",
+      "SOL/USDT"
+    ],
+    "password": "",
+    "secret": ""
+  },
+  "exit_pricing": {
+    "check_depth_of_market": {
+      "bids_to_ask_delta": 1,
+      "enabled": false
+    },
+    "order_book_top": 1,
+    "price_last_balance": 0.0,
+    "price_side": "same",
+    "use_order_book": false
+  },
+  "fiat_display_currency": "USD",
+  "initial_state": "running",
+  "margin_mode": null,
+  "max_open_trades": 3,
+  "order_time_in_force": {
+    "entry": "GTC",
+    "exit": "GTC"
+  },
+  "order_types": {
+    "emergency_exit": "market",
+    "entry": "limit",
+    "exit": "limit",
+    "force_entry": "market",
+    "force_exit": "market",
+    "stoploss": "market",
+    "stoploss_on_exchange": false
+  },
+  "stake_amount": 100,
+  "stake_currency": "USDT",
+  "strategy": "VolatilityBreakout",
+  "telegram": {
+    "chat_id": "",
+    "enabled": false,
+    "token": ""
+  },
+  "timeframe": "15m",
+  "tradable_balance_ratio": 0.99,
+  "trading_mode": "spot",
+  "unfilledtimeout": {
+    "entry": 10,
+    "exit": 10,
+    "exit_timeout_count": 0,
+    "unit": "minutes"
+  },
+  "verbosity": 0
+}

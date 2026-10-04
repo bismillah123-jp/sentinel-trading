@@ -109,35 +109,21 @@ fi
 FT_PASS="${FT_PASS:-$(head -c12 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9' | head -c16)}"
 export TELEGRAM_TOKEN TELEGRAM_CHAT_ID FT_USER FT_PASS EXCHANGE USER_DATA
 if [ "$DRY" = 1 ]; then
-  echo "  [dry-run] generate $USER_DATA/config.json"
+  echo "  [dry-run] generate $USER_DATA/config.json dari config_ft.example.json"
 else
-  python3 - "$USER_DATA/config.json" <<'PYEOF'
-import json, os, sys
-cfg_path = sys.argv[1]
-cfg = {
-  "max_open_trades": 3,
-  "stake_currency": "USDT",
-  "stake_amount": 100,
-  "tradable_balance_ratio": 0.99,
-  "fiat_display_currency": "USD",
-  "dry_run": True,
-  "cancel_open_orders_on_exit": True,
-  "timeframe": "15m",
-  "exchange": {"name": os.environ["EXCHANGE"], "pair_whitelist": ["BTC/USDT", "ETH/USDT", "SOL/USDT"]},
-  "telegram": {"enabled": bool(os.environ.get("TELEGRAM_TOKEN")),
-               "token": os.environ.get("TELEGRAM_TOKEN", ""),
-               "chat_id": os.environ.get("TELEGRAM_CHAT_ID", "")},
-  "api_server": {"enabled": True, "listen_ip_address": "127.0.0.1",
-                 "listen_port": 8080, "username": os.environ["FT_USER"],
-                 "password": os.environ["FT_PASS"]},
-  "bot_name": "sentinel",
-  "initial_state": "running",
-  "db_url": "sqlite:////freqtrade/user_data/tradesv3.sqlite",
-}
-os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
-with open(cfg_path, "w") as f:
-  json.dump(cfg, f, indent=2)
-print("  config.json ditulis")
+  python3 - config_ft.example.json "$USER_DATA/config.json" <<'PYEOF'
+import json, os, sys, secrets
+tpl = json.load(open(sys.argv[1]))
+tpl["exchange"]["name"] = os.environ["EXCHANGE"]
+tok = os.environ.get("TELEGRAM_TOKEN", "")
+tpl["telegram"] = {"enabled": bool(tok), "token": tok,
+                   "chat_id": os.environ.get("TELEGRAM_CHAT_ID", "")}
+tpl["api_server"]["username"] = os.environ["FT_USER"]
+tpl["api_server"]["password"] = os.environ["FT_PASS"]
+tpl["api_server"]["jwt_secret_key"] = secrets.token_hex(32)
+os.makedirs(os.path.dirname(sys.argv[2]), exist_ok=True)
+json.dump(tpl, open(sys.argv[2], "w"), indent=2)
+print("  config.json ditulis dari template (lengkap, lolos validasi)")
 PYEOF
 fi
 echo "  api_server user: $FT_USER (password tersimpan di env, tidak ditulis di repo)"
