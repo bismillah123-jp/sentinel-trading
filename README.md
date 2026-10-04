@@ -88,6 +88,10 @@ Yang dilakukan script, berurutan:
 Flag tambahan: `--backtest` (backtest dulu), `--no-run` (setup saja),
 `--dry-run` (lihat rencananya tanpa eksekusi), `--yes` (non-interaktif).
 
+> **Jalankan ulang kapan saja.** Kalau `config.json` sudah punya konfigurasi
+> Telegram / api_server, bootstrap akan menanyakan: pakai yang sudah ada atau
+> konfigurasi ulang — tidak akan ketimpa diam-diam.
+
 ---
 
 ## Instalasi manual

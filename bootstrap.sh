@@ -38,6 +38,42 @@ ask()  { # ask <var> <prompt> <default>
 }
 die()  { echo "ERROR: $1" >&2; exit 1; }
 
+# Ambil nilai dari config.json Freqtrade yang sudah ada ("" kalau tidak ada)
+cfg_get() {
+  python3 -c "
+import json
+try:
+    v = json.load(open('$USER_DATA/config.json'))
+    for k in '$1'.split('.'):
+        v = v.get(k, {})
+    print(v if isinstance(v, str) else '')
+except Exception:
+    print('')
+" 2>/dev/null
+}
+
+# Kalau config lama sudah punya nilai: tanya mau konfigurasi ulang atau pakai
+# yang sudah ada. Env var yang sudah diisi selalu menang.
+maybe_reuse() {
+  local var="$1" path="$2" label="$3" cur existing ans
+  eval "cur=\$$var"
+  [ -n "$cur" ] && return 0
+  [ -f "$USER_DATA/config.json" ] || return 0
+  existing="$(cfg_get "$path")"
+  [ -n "$existing" ] || return 0
+  if [ "$YES" = 1 ] || [ "$DRY" = 1 ]; then
+    eval "$var=\"\$existing\""
+    echo "  $label: pakai konfigurasi yang sudah ada"
+    return 0
+  fi
+  read -r -p "$label sudah dikonfigurasi. Konfigurasi ulang? [y/N]: " ans
+  if [[ "$ans" =~ ^[Yy]$ ]]; then
+    return 0
+  fi
+  eval "$var=\"\$existing\""
+  echo "  $label: pakai konfigurasi yang sudah ada"
+}
+
 if [ "$(id -u)" = 0 ]; then
   echo "WARNING: jalan sebagai root (sudo). Disarankan jalan sebagai user biasa"
   echo "         (masukkan user ke grup docker: sudo usermod -aG docker \$USER)."
@@ -100,6 +136,11 @@ run docker pull freqtradeorg/freqtrade:stable
 
 step 7 "Config Freqtrade (config.json)"
 EXCHANGE="${EXCHANGE:-binance}"
+USER_DATA="${USER_DATA:-${HOME}/.freqtrade/user_data}"
+maybe_reuse TELEGRAM_TOKEN "telegram.token" "Token Telegram"
+maybe_reuse TELEGRAM_CHAT_ID "telegram.chat_id" "Chat ID Telegram"
+maybe_reuse FT_USER "api_server.username" "Username api_server"
+maybe_reuse FT_PASS "api_server.password" "Password api_server"
 ask TELEGRAM_TOKEN "Telegram bot token (@BotFather, kosongkan=nonaktif)" ""
 ask TELEGRAM_CHAT_ID "Telegram chat_id (@userinfobot, kosongkan=nonaktif)" ""
 ask FT_USER "Username api_server Freqtrade" "sentinel"
