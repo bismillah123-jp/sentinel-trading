@@ -38,6 +38,13 @@ ask()  { # ask <var> <prompt> <default>
 }
 die()  { echo "ERROR: $1" >&2; exit 1; }
 
+if [ "$(id -u)" = 0 ]; then
+  echo "WARNING: jalan sebagai root (sudo). Disarankan jalan sebagai user biasa"
+  echo "         (masukkan user ke grup docker: sudo usermod -aG docker \$USER)."
+  echo "         Lanjut dalam 5 detik... (Ctrl+C untuk batal)"
+  [ "$DRY" = 1 ] || [ "$YES" = 1 ] || sleep 5
+fi
+
 [ -f pyproject.toml ] || die "jalankan dari root repo sentinel-trading (pyproject.toml tidak ketemu)"
 
 step 1 "Cek prasyarat"
@@ -52,14 +59,27 @@ fi
 echo "  python $(python3 --version | cut -d' ' -f2) OK"
 
 step 2 "Install package sentinel"
+PIP_BIN=""
+for c in pip pip3; do
+  if command -v "$c" >/dev/null 2>&1; then PIP_BIN="$c"; break; fi
+done
+[ -n "$PIP_BIN" ] || die "pip tidak ketemu - install dulu: sudo apt install python3-pip"
+echo "  pakai: $PIP_BIN"
 if [ "$DRY" = 1 ]; then
-  echo "  [dry-run] pip install ."
+  echo "  [dry-run] $PIP_BIN install ."
 else
-  pip install . >/dev/null 2>&1 \
-    || pip install --break-system-packages . >/dev/null 2>&1 \
-    || die "pip install gagal - coba pakai virtualenv: python3 -m venv .venv && source .venv/bin/activate"
+  if ! $PIP_BIN install . 2>/tmp/sentinel-pip.log; then
+    echo "  --- coba lagi dengan --break-system-packages ---"
+    if ! $PIP_BIN install --break-system-packages . 2>/tmp/sentinel-pip.log; then
+      echo "  --- error pip ---"
+      tail -15 /tmp/sentinel-pip.log
+      die "pip install gagal - atau pakai virtualenv: python3 -m venv .venv && source .venv/bin/activate && ./bootstrap.sh"
+    fi
+  fi
 fi
-command -v sentinel >/dev/null || [ "$DRY" = 1 ] || die "perintah 'sentinel' tidak ketemu setelah install"
+command -v sentinel >/dev/null 2>&1 || export PATH="$HOME/.local/bin:$PATH"
+command -v sentinel >/dev/null 2>&1 || [ "$DRY" = 1 ] \
+  || die "perintah 'sentinel' tidak ketemu setelah install - cek PATH (mungkin di ~/.local/bin)"
 echo "  sentinel terinstall"
 
 step 3 "Test otomatis (wajib lolos)"
