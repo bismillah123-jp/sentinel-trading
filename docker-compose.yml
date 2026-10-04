@@ -1,0 +1,33 @@
+# Sentinel full stack. Freqtrade & TradingAgents tetap jalan sebagai service
+# sendiri (itu desain yang benar); orchestrator bicara via API/CLI.
+services:
+  orchestrator:
+    build: .
+    environment:
+      - SENTINEL_TA_DIR=/tradingagents
+      - SENTINEL_FT_URL=http://freqtrade:8080
+      - SENTINEL_FT_USER=${FT_USER}
+      - SENTINEL_FT_PASS=${FT_PASS}
+    volumes:
+      - ./sentinel:/app/sentinel:ro
+      - ./adapters:/app/adapters:ro
+      - ./workers:/app/workers:ro
+    depends_on:
+      - freqtrade
+    command: ["python", "-m", "sentinel", "run", "--config", "/app/config.yml"]
+
+  freqtrade:
+    image: freqtradeorg/freqtrade:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./strategies_ft:/freqtrade/user_data/strategies:ro
+      - ./config_ft.json:/freqtrade/user_data/config.json:ro
+    command: ["trade", "--config", "/freqtrade/user_data/config.json",
+              "--strategy", "VolatilityBreakout", "--dry-run"]
+
+  # TradingAgents homelab: mount checkout yang sudah ada, jangan di-copy.
+  # tradingagents:
+  #   image: python:3.12-slim
+  #   volumes:
+  #     - ~/tradingagents:/tradingagents

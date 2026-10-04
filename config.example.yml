@@ -1,0 +1,23 @@
+# Sentinel config. Copy to config.yml and adjust. NEVER commit real secrets -
+# freqtrade API creds go in env vars, never in this file.
+paper_equity: 10000
+tickers:
+  - BTC/USDT
+  - ETH/USDT
+brain_interval_sec: 600   # how often the brain re-evaluates (10 min)
+
+risk:
+  daily_loss_limit_pct: 3.0
+  daily_profit_target_pct: 2.0
+  max_total_drawdown_pct: 10.0
+
+allocations:
+  breakout_atr: 50.0
+  grid: 30.0
+  arb: 20.0
+
+arb:
+  taker_fee_pct: 0.10
+  min_spread_bps: 15.0
+  slippage_bps: 5.0
+  depth_levels: 3

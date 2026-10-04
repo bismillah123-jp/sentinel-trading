@@ -1,0 +1,19 @@
+# Secrets & local stuff - NEVER commit these (lesson learned the hard way).
+.env
+*.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+build/
+dist/
+.DS_Store
+config.yml
+!config.example.yml
+# freqtrade runtime
+user_data/
+*.sqlite
+*.log
+logs/
