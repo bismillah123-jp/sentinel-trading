@@ -2,7 +2,7 @@
   "_comment": "Template config Freqtrade untuk Sentinel. JANGAN isi secret asli di sini - bootstrap.sh menimpa field sensitif dari env.",
   "api_server": {
     "enabled": true,
-    "jwt_secret_key": "CHANGEME_TOO",
+    "jwt_secret_key": "somethingRandomSomethingRandom123",
     "listen_ip_address": "127.0.0.1",
     "listen_port": 8080,
     "password": "CHANGEME",
@@ -48,11 +48,12 @@
   },
   "fiat_display_currency": "USD",
   "initial_state": "running",
-  "margin_mode": null,
   "max_open_trades": 3,
   "order_time_in_force": {
     "entry": "GTC",
-    "exit": "GTC"
+    "exit": "GTC",
+    "stoploss": "GTC",
+    "stoploss_on_exchange": "GTC"
   },
   "order_types": {
     "emergency_exit": "market",
@@ -90,5 +91,8 @@
   "minimal_roi": {
     "0": 0.1
   },
-  "last_stake_amount_min_ratio": 0.5
+  "last_stake_amount_min_ratio": 0.5,
+  "internals": {},
+  "dataformat_ohlcv": "feather",
+  "dataformat_trades": "feather"
 }
